@@ -152,7 +152,8 @@ def get_items(
     # Paramètres de pagination
     page: int = Query(1, ge=1),              # Numéro de page (min: 1)
     page_size: int = Query(20, ge=1, le=100), # Taille de page (1-100)
-    # Paramètres de filtrage
+    # Paramètres de recherche et filtrage
+    search: Optional[str] = Query(None),     # Recherche texte (nom, marque, catégorie)
     category: Optional[str] = Query(None),   # Filtre par catégorie
     brand: Optional[str] = Query(None),      # Filtre par marque
     nutriscore: Optional[str] = Query(None), # Filtre par Nutriscore
@@ -165,6 +166,7 @@ def get_items(
     
     Permet de parcourir tous les produits avec :
     - Pagination (page, page_size)
+    - Recherche texte globale (nom, marque, catégorie)
     - Filtrage par catégorie, marque, nutriscore
     - Filtrage par score qualité minimum
     
@@ -177,17 +179,31 @@ def get_items(
     # Commencer la requête sur la table Product
     query = db.query(Product)
     
+    # === RECHERCHE TEXTUELLE GLOBALE ===
+    if search:
+        # Recherche dans le nom du produit, la marque et la catégorie
+        search_term = f"%{search}%"
+        query = query.outerjoin(Brand).outerjoin(Category).filter(
+            (Product.product_name.ilike(search_term)) |
+            (Brand.name.ilike(search_term)) |
+            (Category.name.ilike(search_term))
+        )
+    
     # === APPLICATION DES FILTRES ===
     # Chaque filtre est optionnel et s'applique seulement si fourni
     
     if category:
         # Filtre par catégorie avec recherche partielle (LIKE %category%)
         # Le join() lie la table categories pour accéder au nom
-        query = query.join(Category).filter(Category.name.ilike(f"%{category}%"))
+        if not search:  # Éviter double join
+            query = query.join(Category)
+        query = query.filter(Category.name.ilike(f"%{category}%"))
     
     if brand:
         # Filtre par marque avec recherche partielle
-        query = query.join(Brand).filter(Brand.name.ilike(f"%{brand}%"))
+        if not search and not category:  # Éviter double join
+            query = query.join(Brand)
+        query = query.filter(Brand.name.ilike(f"%{brand}%"))
     
     if nutriscore:
         # Filtre par Nutriscore exact (a, b, c, d ou e)
@@ -318,6 +334,18 @@ def get_stats(db: Session = Depends(get_db)):
         avg_quality_score=round(avg_quality, 1) if avg_quality else None,
         nutriscore_distribution=nutriscore_dist
     )
+
+
+@app.get("/categories")
+def get_categories(db: Session = Depends(get_db)):
+    """
+    Liste toutes les catégories disponibles.
+    
+    Returns:
+        Liste des noms de catégories triés alphabétiquement
+    """
+    categories = db.query(Category.name).order_by(Category.name).all()
+    return [c[0] for c in categories if c[0]]
 
 
 # =============================================================================
