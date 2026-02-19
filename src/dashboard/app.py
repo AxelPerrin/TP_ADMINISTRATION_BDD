@@ -163,51 +163,180 @@ st.markdown("""
         margin: 0.8rem 0;
     }
     
-    /* Carte produit */
+    /* Carte produit améliorée */
     .product-card {
-        background: #2d2d2d;
+        background: linear-gradient(145deg, #2d2d2d 0%, #252525 100%);
         border: 1px solid #3d3d3d;
-        border-radius: 8px;
+        border-radius: 16px;
         padding: 1rem;
-        margin-bottom: 1rem;
+        margin: 0.5rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+    
+    .product-card:hover {
+        transform: translateY(-8px);
+        border-color: #4CAF50;
+        box-shadow: 0 12px 24px rgba(76, 175, 80, 0.2);
     }
     
     .product-name {
         color: #fff;
         font-weight: 600;
         font-size: 0.95rem;
+        line-height: 1.3;
+        min-height: 2.6em;
     }
     
     .product-brand {
-        color: #aaa;
-        font-size: 0.85rem;
+        color: #888;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .product-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 0.5rem;
+        padding-top: 0.5rem;
+        border-top: 1px solid #3d3d3d;
+    }
+    
+    .quality-score {
+        background: linear-gradient(90deg, #4CAF50, #8BC34A);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 700;
+        font-size: 0.9rem;
     }
     
     /* Image placeholder */
     .img-placeholder {
-        background: #3d3d3d;
-        height: 150px;
-        border: 2px solid #fff;
-        border-radius: 8px;
+        background: linear-gradient(145deg, #3d3d3d 0%, #2d2d2d 100%);
+        height: 160px;
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #888;
-        font-size: 0.8rem;
+        color: #666;
+        font-size: 2rem;
+        margin-bottom: 0.8rem;
     }
     
     /* Image produit avec taille fixe */
     .product-img-container {
         width: 100%;
-        height: 150px;
-        background: #3d3d3d;
-        border: 2px solid #fff;
-        border-radius: 8px;
+        height: 160px;
+        background: linear-gradient(145deg, #3d3d3d 0%, #2d2d2d 100%);
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
         overflow: hidden;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.8rem;
+        position: relative;
+    }
+    
+    .product-img-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(180deg, transparent 60%, rgba(0,0,0,0.4) 100%);
+        border-radius: 12px;
+        pointer-events: none;
+        z-index: 1;
+    }
+    
+    .product-img-container img {
+        transition: transform 0.3s ease;
+    }
+    
+    .product-card:hover .product-img-container img {
+        transform: scale(1.05);
+    }
+    
+    /* Filtre barre */
+    .filter-bar {
+        background: linear-gradient(145deg, #2d2d2d 0%, #252525 100%);
+        border: 1px solid #3d3d3d;
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .filter-chip {
+        display: inline-flex;
+        align-items: center;
+        background: #3d3d3d;
+        border: 1px solid #4d4d4d;
+        border-radius: 20px;
+        padding: 0.3rem 0.8rem;
+        margin: 0.2rem;
+        font-size: 0.8rem;
+        color: #ccc;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .filter-chip:hover {
+        background: #4d4d4d;
+        border-color: #4CAF50;
+    }
+    
+    .filter-chip.active {
+        background: #4CAF50;
+        border-color: #4CAF50;
+        color: #fff;
+    }
+    
+    /* Bouton stylé */
+    .btn-detail {
+        background: linear-gradient(145deg, #4CAF50 0%, #45a049 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        width: 100%;
+        text-align: center;
+    }
+    
+    .btn-detail:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+    }
+    
+    /* Recherche intégrée */
+    .search-container {
+        background: linear-gradient(145deg, #2d2d2d 0%, #252525 100%);
+        border: 1px solid #3d3d3d;
+        border-radius: 12px;
+        padding: 1.2rem;
+        margin-bottom: 1rem;
+    }
+    
+    .search-input {
+        background: #1e1e1e !important;
+        border: 2px solid #3d3d3d !important;
+        border-radius: 25px !important;
+        padding: 0.8rem 1.2rem !important;
+        color: #fff !important;
+        font-size: 1rem !important;
+        width: 100%;
+        transition: border-color 0.2s ease;
+    }
+    
+    .search-input:focus {
+        border-color: #4CAF50 !important;
+        outline: none;
     }
     
     /* Style pour st.image */
@@ -407,6 +536,21 @@ if 'current_page' not in st.session_state:
     st.session_state.current_page = 1
 if 'selected_product_id' not in st.session_state:
     st.session_state.selected_product_id = None
+# Initialisation des filtres
+if 'product_search' not in st.session_state:
+    st.session_state.product_search = ""
+if 'nutri_a' not in st.session_state:
+    st.session_state.nutri_a = True
+if 'nutri_b' not in st.session_state:
+    st.session_state.nutri_b = True
+if 'nutri_c' not in st.session_state:
+    st.session_state.nutri_c = True
+if 'nutri_d' not in st.session_state:
+    st.session_state.nutri_d = True
+if 'nutri_e' not in st.session_state:
+    st.session_state.nutri_e = True
+if 'category_filter' not in st.session_state:
+    st.session_state.category_filter = "Toutes"
 
 
 # =============================================================================
@@ -423,97 +567,14 @@ with st.sidebar:
     st.markdown("**🧭 Navigation**")
     page_mode = st.radio(
         "Navigation",
-        ["Tableau de bord", "Produits", "Recherche"],
+        ["Tableau de bord", "Produits"],
         label_visibility="collapsed",
-        captions=["Vue d'ensemble", "Parcourir le catalogue", "Recherche avancée"]
+        captions=["Vue d'ensemble et statistiques", "Explorer et rechercher"]
     )
     
     st.divider()
     
-    # === BARRE DE RECHERCHE ===
-    st.markdown("**🔍 Recherche rapide**")
-    search_query = st.text_input(
-        "Rechercher",
-        placeholder="Nom, marque, catégorie...",
-        label_visibility="collapsed",
-        help="Tapez un mot-clé pour filtrer les produits"
-    )
-    
-    st.divider()
-    
-    # === FILTRES NUTRISCORE (Checkboxes) ===
-    st.markdown("**🏷️ Nutriscore**")
-    st.caption("A = Excellent → E = À limiter")
-    col1, col2, col3, col4, col5 = st.columns(5)
-    with col1:
-        nutri_a = st.checkbox("A", value=True, key="nutri_a")
-    with col2:
-        nutri_b = st.checkbox("B", value=True, key="nutri_b")
-    with col3:
-        nutri_c = st.checkbox("C", value=True, key="nutri_c")
-    with col4:
-        nutri_d = st.checkbox("D", value=True, key="nutri_d")
-    with col5:
-        nutri_e = st.checkbox("E", value=True, key="nutri_e")
-    
-    # Construire la liste des nutriscores sélectionnés
-    selected_nutri = []
-    if nutri_a: selected_nutri.append("a")
-    if nutri_b: selected_nutri.append("b")
-    if nutri_c: selected_nutri.append("c")
-    if nutri_d: selected_nutri.append("d")
-    if nutri_e: selected_nutri.append("e")
-    
-    st.divider()
-    
-    # === FILTRES CATÉGORIES (Checkboxes) ===
-    st.markdown("**🗂️ Catégories**")
-    st.caption("Filtrer par type de produit")
-    
-    # Récupérer les catégories depuis l'API
-    categories_list = api_get("/categories") or []
-    
-    # Afficher les catégories en checkboxes (max 10 affichées)
-    selected_categories = []
-    filter_brand = None  # Filtre marque (non implémenté pour l'instant)
-    if categories_list:
-        # Limiter à 10 catégories pour ne pas surcharger
-        display_cats = categories_list[:10]
-        for cat in display_cats:
-            if st.checkbox(cat, value=False, key=f"cat_{cat}"):
-                selected_categories.append(cat)
-        
-        if len(categories_list) > 10:
-            st.caption(f"+ {len(categories_list) - 10} autres catégories")
-    else:
-        st.caption("Aucune catégorie")
-    
-    # Nombre fixe de produits par page
-    page_size = 48
-    
-    st.divider()
-    
-    if st.button("Réinitialiser", use_container_width=True):
-        st.session_state.current_page = 1
-        st.session_state.selected_product_id = None
-        st.rerun()
-
-
-# =============================================================================
-# HEADER
-# =============================================================================
-
-# Header principal avec mission
-st.markdown('''
-<div class="hero-section">
-    <p class="main-title">🥗 Food Analytics</p>
-    <p class="hero-mission">Explorez et analysez les données nutritionnelles</p>
-    <p class="subtitle">
-        Découvrez la qualité nutritionnelle de milliers de produits alimentaires.<br>
-        Filtrez par Nutriscore, catégorie ou marque pour trouver les meilleurs choix pour votre santé.
-    </p>
-</div>
-''', unsafe_allow_html=True)
+    st.caption("Données issues de Open Food Facts")
 
 
 # =============================================================================
@@ -606,14 +667,6 @@ if page_mode == "Tableau de bord":
 
 elif page_mode == "Produits":
     
-    # Section explicative
-    st.markdown('''
-    <div style="background:#252525; border-radius:8px; padding:1rem; margin-bottom:1rem; border-left:4px solid #2196F3;">
-        <strong style="color:#2196F3;">📦 Catalogue Produits</strong><br>
-        <span style="color:#aaa;">Parcourez tous les produits. Cliquez sur "Voir détail" pour consulter les informations nutritionnelles complètes.</span>
-    </div>
-    ''', unsafe_allow_html=True)
-    
     # Vérifier si on affiche un détail
     if st.session_state.selected_product_id:
         
@@ -628,55 +681,223 @@ elif page_mode == "Produits":
         detail = api_get(f"/items/{st.session_state.selected_product_id}")
         
         if detail:
-            col1, col2 = st.columns([1, 2])
+            # === HEADER PRODUIT ===
+            nutriscore = detail.get('nutriscore_grade', '')
+            quality = detail.get('quality_score') or 0
+            nova = detail.get('nova_group')
+            brand = detail.get('brand') or 'Marque inconnue'
+            category = detail.get('category') or 'Non catégorisé'
             
-            with col1:
-                # Image du produit
-                render_product_image(detail['code'])
+            # Couleurs Nutriscore
+            nutri_colors = {'a': '#038141', 'b': '#85BB2F', 'c': '#FECB02', 'd': '#EE8100', 'e': '#E63E11'}
+            nutri_color = nutri_colors.get(nutriscore.lower(), '#555') if nutriscore else '#555'
             
-            with col2:
-                st.markdown(f"### {detail['product_name']}")
-                st.caption(detail.get('brand') or 'Marque inconnue')
+            # Layout principal - 3 colonnes pour espacer
+            img_col, spacer_col, info_col = st.columns([1.2, 0.15, 1.8])
+            
+            with img_col:
+                # Image avec cadre stylé
+                img_url = fetch_product_image(detail['code'])
+                if img_url:
+                    st.markdown(f'''
+                    <div style="background: linear-gradient(145deg, #2d2d2d, #252525); 
+                                border-radius: 16px; padding: 1.5rem; 
+                                box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+                                display: flex; align-items: center; justify-content: center;
+                                min-height: 280px;">
+                        <img src="{img_url}" style="max-width: 100%; max-height: 250px; 
+                                                     object-fit: contain; border-radius: 8px;" />
+                    </div>
+                    ''', unsafe_allow_html=True)
+                else:
+                    st.markdown('''
+                    <div style="background: linear-gradient(145deg, #2d2d2d, #252525); 
+                                border-radius: 16px; padding: 1.5rem; 
+                                box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+                                display: flex; align-items: center; justify-content: center;
+                                min-height: 280px; color: #666; font-size: 4rem;">
+                        📦
+                    </div>
+                    ''', unsafe_allow_html=True)
                 
-                st.divider()
+                # Catégorie sous l'image
+                st.markdown(f'''
+                <div style="background: #2d2d2d; border-left: 4px solid #4CAF50; padding: 0.8rem 1rem; 
+                            border-radius: 0 8px 8px 0; margin-top: 1rem;">
+                    <span style="color: #888; font-size: 0.75rem; text-transform: uppercase;">Catégorie</span><br>
+                    <span style="color: #fff; font-size: 0.95rem;">{category}</span>
+                </div>
+                ''', unsafe_allow_html=True)
+            
+            with spacer_col:
+                st.write("")  # Colonne vide pour l'espacement
+            
+            with info_col:
+                # Titre et marque
+                st.markdown(f'''
+                <div style="margin-bottom: 1.5rem;">
+                    <h1 style="color: #fff; font-size: 1.8rem; margin: 0; line-height: 1.3;">
+                        {detail['product_name']}
+                    </h1>
+                    <p style="color: #888; font-size: 1rem; margin-top: 0.5rem; text-transform: uppercase; letter-spacing: 1px;">
+                        {brand}
+                    </p>
+                </div>
+                ''', unsafe_allow_html=True)
                 
-                # Infos en grille
-                info_col1, info_col2 = st.columns(2)
+                # Badges Nutriscore et Score
+                st.markdown(f'''
+                <div style="display: flex; gap: 1rem; margin: 1.5rem 0;">
+                    <div style="background: {nutri_color}; color: white; padding: 0.8rem 1.5rem; 
+                                border-radius: 12px; text-align: center; min-width: 100px;
+                                box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+                        <div style="font-size: 2rem; font-weight: 700;">{nutriscore.upper() if nutriscore else '?'}</div>
+                        <div style="font-size: 0.75rem; opacity: 0.9;">NUTRISCORE</div>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #4CAF50, #45a049); color: white; 
+                                padding: 0.8rem 1.5rem; border-radius: 12px; text-align: center; min-width: 100px;
+                                box-shadow: 0 4px 12px rgba(76,175,80,0.3);">
+                        <div style="font-size: 2rem; font-weight: 700;">{quality}</div>
+                        <div style="font-size: 0.75rem; opacity: 0.9;">SCORE /100</div>
+                    </div>
+                </div>
+                ''', unsafe_allow_html=True)
+            
+            # === INFORMATIONS DÉTAILLÉES ===
+            st.markdown("<br>", unsafe_allow_html=True)
+            
+            detail_cols = st.columns(3)
+            
+            with detail_cols[0]:
+                st.markdown(f'''
+                <div style="background: linear-gradient(145deg, #2d2d2d, #252525); border-radius: 12px; 
+                            padding: 1.2rem; text-align: center; height: 120px;
+                            display: flex; flex-direction: column; justify-content: center;">
+                    <div style="color: #888; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 0.5rem;">Code-barres</div>
+                    <div style="color: #4CAF50; font-size: 1.1rem; font-family: monospace; font-weight: 600;">{detail['code']}</div>
+                </div>
+                ''', unsafe_allow_html=True)
+            
+            with detail_cols[1]:
+                nova_labels = {1: "Non transformé", 2: "Culinaire", 3: "Transformé", 4: "Ultra-transformé"}
+                nova_colors = {1: "#038141", 2: "#85BB2F", 3: "#EE8100", 4: "#E63E11"}
+                nova_label = nova_labels.get(nova, "Non disponible") if nova else "Non disponible"
+                nova_color = nova_colors.get(nova, "#555") if nova else "#555"
                 
-                with info_col1:
-                    st.markdown("**Code-barres**")
-                    st.code(detail['code'])
-                    
-                    st.markdown("**Catégorie**")
-                    st.write(detail.get('category') or 'Non catégorisé')
-                
-                with info_col2:
-                    nutriscore = detail.get('nutriscore_grade', '')
-                    st.markdown("**Nutriscore**")
-                    if nutriscore:
-                        st.markdown(f'<span class="nutri-badge nutri-{nutriscore.lower()}">{nutriscore.upper()}</span>', unsafe_allow_html=True)
-                    else:
-                        st.write("Non disponible")
-                    
-                    st.markdown("**Score qualité**")
-                    quality = detail.get('quality_score')
-                    if quality:
-                        st.progress(quality / 100)
-                        st.write(f"{quality}/100")
-                    else:
-                        st.write("Non disponible")
-                
-                st.divider()
-                
-                nova = detail.get('nova_group')
-                if nova:
-                    nova_labels = {1: "Aliments non transformés", 2: "Ingrédients culinaires", 3: "Aliments transformés", 4: "Produits ultra-transformés"}
-                    st.markdown(f"**Groupe NOVA** : {nova} - {nova_labels.get(nova, '')}")
+                st.markdown(f'''
+                <div style="background: linear-gradient(145deg, #2d2d2d, #252525); border-radius: 12px; 
+                            padding: 1.2rem; text-align: center; height: 120px;
+                            display: flex; flex-direction: column; justify-content: center;">
+                    <div style="color: #888; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 0.5rem;">Groupe NOVA</div>
+                    <div style="color: {nova_color}; font-size: 1.8rem; font-weight: 700;">{nova if nova else '?'}</div>
+                    <div style="color: #aaa; font-size: 0.8rem;">{nova_label}</div>
+                </div>
+                ''', unsafe_allow_html=True)
+            
+            with detail_cols[2]:
+                # Barre de progression visuelle
+                progress_color = "#4CAF50" if quality >= 70 else "#FECB02" if quality >= 40 else "#E63E11"
+                st.markdown(f'''
+                <div style="background: linear-gradient(145deg, #2d2d2d, #252525); border-radius: 12px; 
+                            padding: 1.2rem; text-align: center; height: 120px;
+                            display: flex; flex-direction: column; justify-content: center;">
+                    <div style="color: #888; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 0.5rem;">Qualité globale</div>
+                    <div style="background: #1e1e1e; border-radius: 10px; height: 12px; overflow: hidden; margin: 0.5rem 0;">
+                        <div style="background: linear-gradient(90deg, {progress_color}, {progress_color}aa); 
+                                    width: {quality}%; height: 100%; border-radius: 10px;"></div>
+                    </div>
+                    <div style="color: #fff; font-size: 0.9rem;">{quality}/100</div>
+                </div>
+                ''', unsafe_allow_html=True)
+            
         else:
             st.error("Produit non trouvé")
     
     else:
         # Liste des produits
+        
+        # Fonction de reset des filtres
+        def reset_filters():
+            st.session_state.current_page = 1
+            st.session_state["product_search"] = ""
+            st.session_state["nutri_a"] = True
+            st.session_state["nutri_b"] = True
+            st.session_state["nutri_c"] = True
+            st.session_state["nutri_d"] = True
+            st.session_state["nutri_e"] = True
+            st.session_state["category_filter"] = "Toutes"
+        
+        # === BARRE DE RECHERCHE ===
+        search_col1, search_col2 = st.columns([4, 1])
+        with search_col2:
+            st.button("🔄 Reset", use_container_width=True, on_click=reset_filters)
+        with search_col1:
+            search_query = st.text_input(
+                "🔍 Rechercher un produit",
+                placeholder="Nom, marque, code-barres...",
+                label_visibility="collapsed",
+                key="product_search"
+            )
+        
+        # === FILTRES ===
+        with st.expander("🎛️ Filtres avancés", expanded=False):
+            filter_col1, filter_col2 = st.columns(2)
+            
+            with filter_col1:
+                # Filtre Nutriscore
+                st.markdown("**🏷️ Nutriscore**")
+                nutri_cols = st.columns(5)
+                with nutri_cols[0]:
+                    nutri_a = st.checkbox("A", key="nutri_a")
+                with nutri_cols[1]:
+                    nutri_b = st.checkbox("B", key="nutri_b")
+                with nutri_cols[2]:
+                    nutri_c = st.checkbox("C", key="nutri_c")
+                with nutri_cols[3]:
+                    nutri_d = st.checkbox("D", key="nutri_d")
+                with nutri_cols[4]:
+                    nutri_e = st.checkbox("E", key="nutri_e")
+            
+            with filter_col2:
+                # Filtre Catégories
+                st.markdown("**🗂️ Catégorie**")
+                categories_list = api_get("/categories") or []
+                selected_category = st.selectbox(
+                    "Catégorie",
+                    options=["Toutes"] + categories_list,
+                    label_visibility="collapsed",
+                    key="category_filter"
+                )
+        
+        # Construire la liste des nutriscores sélectionnés
+        selected_nutri = []
+        if nutri_a: selected_nutri.append("a")
+        if nutri_b: selected_nutri.append("b")
+        if nutri_c: selected_nutri.append("c")
+        if nutri_d: selected_nutri.append("d")
+        if nutri_e: selected_nutri.append("e")
+        
+        # Catégorie sélectionnée
+        selected_categories = [selected_category] if selected_category != "Toutes" else []
+        filter_brand = None
+        page_size = 48
+        
+        # Filtres actifs
+        active_filters = []
+        if search_query:
+            active_filters.append(f"🔎 \"{search_query}\"")
+        if selected_categories:
+            active_filters.append(f"🗂️ {selected_categories[0]}")
+        if len(selected_nutri) < 5:
+            active_filters.append(f"🏷️ {', '.join([n.upper() for n in selected_nutri])}")
+        
+        if active_filters:
+            st.markdown(f'''
+            <div style="background:#1e1e1e; border:1px solid #4CAF50; border-radius:8px; padding:0.5rem 1rem; margin:0.5rem 0 1rem 0;">
+                <span style="color:#4CAF50; font-size:0.85rem;">Filtres:</span> 
+                <span style="color:#ccc; font-size:0.85rem;">{" • ".join(active_filters)}</span>
+            </div>
+            ''', unsafe_allow_html=True)
         
         # Construire les paramètres
         params = {"page": st.session_state.current_page, "page_size": page_size}
@@ -694,13 +915,6 @@ elif page_mode == "Produits":
         
         if data and data["total"] > 0:
             
-            # Info pagination
-            st.markdown(f'''
-            <div class="pagination-bar">
-                {data["total"]} produits • Page {data["page"]} sur {data["total_pages"]}
-            </div>
-            ''', unsafe_allow_html=True)
-            
             # Navigation pages
             col1, col2, col3 = st.columns([1, 3, 1])
             with col1:
@@ -715,7 +929,7 @@ elif page_mode == "Produits":
             st.markdown("<br>", unsafe_allow_html=True)
             
             # Grille de produits (4 colonnes)
-            cols = st.columns(4)
+            cols = st.columns(4, gap="small")
             
             # Filtrer par nutriscore sélectionné
             filtered_items = [
@@ -726,48 +940,43 @@ elif page_mode == "Produits":
             for idx, item in enumerate(filtered_items):
                 with cols[idx % 4]:
                     
-                    # Container pour chaque produit
-                    with st.container():
-                        # Image produit
-                        render_product_image(item['code'])
-                        
-                        # Nom produit (tronqué)
-                        name = item['product_name']
-                        display_name = name[:35] + '...' if len(name) > 35 else name
-                        st.markdown(f"**{display_name}**")
-                        
-                        # Marque
-                        st.caption(item.get('brand') or 'Marque inconnue')
-                        
-                        # Nutriscore et score
-                        nutriscore = item.get('nutriscore_grade', '')
-                        quality = item.get('quality_score')
-                        
-                        meta_col1, meta_col2 = st.columns(2)
-                        with meta_col1:
-                            if nutriscore:
-                                st.markdown(f'<span class="nutri-badge nutri-{nutriscore.lower()}">{nutriscore.upper()}</span>', unsafe_allow_html=True)
-                            else:
-                                st.markdown('<span class="nutri-badge nutri-unknown">?</span>', unsafe_allow_html=True)
-                        with meta_col2:
-                            st.caption(f"Score: {quality or '-'}")
-                        
-                        # Bouton voir détail
-                        if st.button("Voir détail", key=f"btn_{item['id']}", use_container_width=True):
-                            st.session_state.selected_product_id = item['id']
-                            st.rerun()
+                    # Récupérer les données
+                    name = item['product_name']
+                    display_name = name[:32] + '...' if len(name) > 32 else name
+                    brand = item.get('brand') or 'Marque inconnue'
+                    nutriscore = item.get('nutriscore_grade', '')
+                    quality = item.get('quality_score')
+                    nutri_class = f"nutri-{nutriscore.lower()}" if nutriscore else "nutri-unknown"
+                    nutri_display = nutriscore.upper() if nutriscore else "?"
                     
-                    st.markdown("<br>", unsafe_allow_html=True)
+                    # Image avec fallback
+                    img_url = fetch_product_image(item['code'])
+                    img_html = f'<img src="{img_url}" style="max-width:100%; max-height:140px; object-fit:contain; border-radius:8px;" />' if img_url else '<div style="font-size:3rem; color:#555;">📦</div>'
+                    
+                    # Carte produit HTML complète
+                    st.markdown(f'''
+                    <div class="product-card">
+                        <div style="width:100%; height:150px; background:linear-gradient(145deg, #3d3d3d 0%, #2d2d2d 100%); 
+                                    border-radius:12px; display:flex; align-items:center; justify-content:center; 
+                                    overflow:hidden; margin-bottom:0.8rem;">
+                            {img_html}
+                        </div>
+                        <div class="product-name">{display_name}</div>
+                        <div class="product-brand">{brand}</div>
+                        <div class="product-meta">
+                            <span class="nutri-badge {nutri_class}">{nutri_display}</span>
+                            <span class="quality-score">Score: {quality or '-'}/100</span>
+                        </div>
+                    </div>
+                    ''', unsafe_allow_html=True)
+                    
+                    # Bouton voir détail
+                    if st.button("👁️ Détails", key=f"btn_{item['id']}", use_container_width=True):
+                        st.session_state.selected_product_id = item['id']
+                        st.rerun()
             
             # === PAGINATION EN BAS ===
             st.markdown("<br>", unsafe_allow_html=True)
-            
-            # Info pagination
-            st.markdown(f'''
-            <div class="pagination-bar">
-                {data["total"]} produits • Page {data["page"]} sur {data["total_pages"]}
-            </div>
-            ''', unsafe_allow_html=True)
             
             # Boutons navigation (en bas)
             col1, col2, col3 = st.columns([1, 3, 1])
@@ -782,68 +991,6 @@ elif page_mode == "Produits":
         
         else:
             st.info("Aucun produit trouvé. Modifiez les filtres.")
-
-
-# =============================================================================
-# PAGE : RECHERCHE
-# =============================================================================
-
-elif page_mode == "Recherche":
-    
-    # Section explicative
-    st.markdown('''
-    <div style="background:#252525; border-radius:8px; padding:1rem; margin-bottom:1rem; border-left:4px solid #FF9800;">
-        <strong style="color:#FF9800;">🔍 Recherche Avancée</strong><br>
-        <span style="color:#aaa;">Utilisez les filtres dans la barre latérale ou entrez un code-barres pour trouver un produit spécifique.</span>
-    </div>
-    ''', unsafe_allow_html=True)
-    
-    st.markdown("**📷 Recherche par code-barres**")
-    
-    col1, col2 = st.columns([4, 1])
-    with col1:
-        search_code = st.text_input("Code-barres", placeholder="Ex: 3017620422003", label_visibility="collapsed")
-    with col2:
-        search_btn = st.button("Rechercher", use_container_width=True)
-    
-    st.divider()
-    
-    # Afficher résultats si filtres actifs ou recherche
-    if any([selected_categories, filter_brand, search_query]):
-        
-        st.markdown("**Résultats filtrés**")
-        
-        params = {"page": 1, "page_size": 20}
-        if search_query:
-            params["search"] = search_query
-        if selected_categories:
-            params["category"] = selected_categories[0]
-        if filter_brand:
-            params["brand"] = filter_brand
-        
-        data = api_get("/items", params)
-        
-        if data and data["total"] > 0:
-            st.success(f"{data['total']} produit(s) trouvé(s)")
-            
-            for item in data["items"][:10]:
-                with st.expander(f"{item['product_name']} - {item.get('brand') or 'N/A'}"):
-                    col1, col2 = st.columns([1, 3])
-                    
-                    with col1:
-                        render_product_image(item['code'])
-                    
-                    with col2:
-                        st.markdown(f"**Code:** `{item['code']}`")
-                        st.markdown(f"**Catégorie:** {item.get('category') or 'N/A'}")
-                        
-                        nutriscore = item.get('nutriscore_grade', '')
-                        quality = item.get('quality_score')
-                        st.markdown(f"**Nutriscore:** {nutriscore.upper() if nutriscore else 'N/A'} | **Score:** {quality or 'N/A'}")
-        else:
-            st.warning("Aucun résultat")
-    else:
-        st.caption("Utilisez les filtres dans la barre latérale pour rechercher des produits.")
 
 
 # =============================================================================
