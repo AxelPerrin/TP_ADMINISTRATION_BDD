@@ -1,432 +1,174 @@
-"""
-=============================================================================
-DASHBOARD STREAMLIT - INTERFACE DE VISUALISATION PROFESSIONNELLE
-=============================================================================
-Dashboard sobre et professionnel pour visualiser les données OpenFoodFacts.
-
-UTILISATION :
-    streamlit run src/dashboard/app.py
-
-Accessible via : http://localhost:8501
-=============================================================================
-"""
+"""Dashboard Streamlit - Food Analytics"""
 
 import streamlit as st
 import requests
 
-# =============================================================================
-# CONFIGURATION
-# =============================================================================
-
-st.set_page_config(
-    page_title="Food Analytics",
-    page_icon="🥗",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
-
+# Configuration
+st.set_page_config(page_title="Food Analytics", page_icon="🥗", layout="wide", initial_sidebar_state="expanded")
 API_URL = "http://localhost:8000"
 
-# =============================================================================
-# STYLES CSS - DESIGN SOBRE ET PROFESSIONNEL
-# =============================================================================
-
+# CSS - Thème professionnel sombre
 st.markdown("""
 <style>
-    /* === THEME SOMBRE PROFESSIONNEL === */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    :root {
+        --bg-primary: #111827;
+        --bg-secondary: #1f2937;
+        --bg-card: #1f2937;
+        --accent: #3b82f6;
+        --accent-light: #60a5fa;
+        --text-primary: #f9fafb;
+        --text-secondary: #9ca3af;
+        --text-muted: #6b7280;
+        --border: #374151;
+        --border-light: #4b5563;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+    }
     
     .stApp {
-        background-color: #1e1e1e;
+        background: var(--bg-primary) !important;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
     }
     
-    /* Header principal */
-    .hero-section {
-        background: linear-gradient(135deg, #2d2d2d 0%, #1e1e1e 100%);
-        border: 1px solid #3d3d3d;
-        border-radius: 12px;
-        padding: 2rem;
-        margin-bottom: 1.5rem;
-        text-align: center;
+    header[data-testid="stHeader"] {
+        background: var(--bg-secondary) !important;
+        border-bottom: 1px solid var(--border) !important;
     }
     
-    .main-title {
-        font-size: 2.2rem;
-        font-weight: 700;
-        color: #ffffff;
-        margin-bottom: 0.5rem;
+    section[data-testid="stSidebar"] {
+        background: var(--bg-secondary) !important;
+        border-right: 1px solid var(--border) !important;
     }
     
-    .hero-mission {
-        color: #4CAF50;
-        font-size: 1.1rem;
-        font-weight: 500;
-        margin-bottom: 0.8rem;
+    section[data-testid="stSidebar"] .stRadio > div { gap: 0.4rem; }
+    section[data-testid="stSidebar"] .stRadio label {
+        background: var(--bg-primary) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: 8px !important;
+        padding: 0.7rem 1rem !important;
+        transition: all 0.2s ease !important;
+    }
+    section[data-testid="stSidebar"] .stRadio label:hover {
+        background: var(--border) !important;
+        border-color: var(--accent) !important;
     }
     
-    .subtitle {
-        color: #aaa;
-        font-size: 0.95rem;
-        margin-bottom: 0;
-        line-height: 1.5;
-    }
-    
-    /* Cartes métriques */
     .stat-card {
-        background: #2d2d2d;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
         border-radius: 12px;
         padding: 1.5rem;
-        border: 1px solid #3d3d3d;
         text-align: center;
-        transition: transform 0.2s;
-        height: 200px;
+        height: 160px;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
+        transition: all 0.2s ease;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     }
+    .stat-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.3); transform: translateY(-2px); }
+    .stat-icon { font-size: 1.8rem; margin-bottom: 0.6rem; }
+    .stat-value { font-size: 2rem; font-weight: 700; color: var(--text-primary); }
+    .stat-label { font-size: 0.75rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 500; margin-top: 0.3rem; }
+    .stat-desc { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.3rem; }
     
-    .stat-card:hover {
-        transform: translateY(-2px);
-        border-color: #4d4d4d;
-    }
-    
-    .stat-icon {
-        font-size: 1.8rem;
-        margin-bottom: 0.5rem;
-    }
-    
-    .stat-value {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #ffffff;
-    }
-    
-    .stat-label {
-        font-size: 0.85rem;
-        color: #888;
-        margin-top: 0.3rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    
-    .stat-desc {
-        font-size: 0.75rem;
-        color: #666;
-        margin-top: 0.5rem;
-        font-style: italic;
-    }
-    
-    /* Nutriscore badges */
     .nutri-badge {
         display: inline-flex;
         align-items: center;
         justify-content: center;
         width: 28px;
         height: 28px;
-        border-radius: 4px;
+        border-radius: 6px;
         font-weight: 600;
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         color: white;
     }
+    .nutri-a { background: #059669; }
+    .nutri-b { background: #84cc16; }
+    .nutri-c { background: #eab308; color: #1f2937; }
+    .nutri-d { background: #f97316; }
+    .nutri-e { background: #dc2626; }
+    .nutri-unknown { background: #6b7280; }
     
-    .nutri-a { background: #038141; }
-    .nutri-b { background: #85BB2F; }
-    .nutri-c { background: #FECB02; color: #333; }
-    .nutri-d { background: #EE8100; }
-    .nutri-e { background: #E63E11; }
-    .nutri-unknown { background: #555; color: #aaa; }
-    
-    /* Distribution Nutriscore */
     .nutri-dist-item {
-        background: #2d2d2d;
-        border: 1px solid #3d3d3d;
-        border-radius: 8px;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 10px;
         padding: 1rem;
         text-align: center;
-    }
-    
-    .nutri-dist-count {
-        font-size: 1.3rem;
-        font-weight: 600;
-        color: #ffffff;
-    }
-    
-    /* Pagination */
-    .pagination-bar {
-        background: #2d2d2d;
-        padding: 0.8rem 1rem;
-        border-radius: 6px;
-        border: 1px solid #3d3d3d;
-        text-align: center;
-        color: #ccc;
-        font-size: 0.9rem;
-        margin: 0.8rem 0;
-    }
-    
-    /* Carte produit améliorée */
-    .product-card {
-        background: linear-gradient(145deg, #2d2d2d 0%, #252525 100%);
-        border: 1px solid #3d3d3d;
-        border-radius: 16px;
-        padding: 1rem;
-        margin: 0.5rem;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-    }
-    
-    .product-card:hover {
-        transform: translateY(-8px);
-        border-color: #4CAF50;
-        box-shadow: 0 12px 24px rgba(76, 175, 80, 0.2);
-    }
-    
-    .product-name {
-        color: #fff;
-        font-weight: 600;
-        font-size: 0.95rem;
-        line-height: 1.3;
-        min-height: 2.6em;
-    }
-    
-    .product-brand {
-        color: #888;
-        font-size: 0.8rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    
-    .product-meta {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-top: 0.5rem;
-        padding-top: 0.5rem;
-        border-top: 1px solid #3d3d3d;
-    }
-    
-    .quality-score {
-        background: linear-gradient(90deg, #4CAF50, #8BC34A);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        font-weight: 700;
-        font-size: 0.9rem;
-    }
-    
-    /* Image placeholder */
-    .img-placeholder {
-        background: linear-gradient(145deg, #3d3d3d 0%, #2d2d2d 100%);
-        height: 160px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #666;
-        font-size: 2rem;
-        margin-bottom: 0.8rem;
-    }
-    
-    /* Image produit avec taille fixe */
-    .product-img-container {
-        width: 100%;
-        height: 160px;
-        background: linear-gradient(145deg, #3d3d3d 0%, #2d2d2d 100%);
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-        margin-bottom: 0.8rem;
-        position: relative;
-    }
-    
-    .product-img-container::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(180deg, transparent 60%, rgba(0,0,0,0.4) 100%);
-        border-radius: 12px;
-        pointer-events: none;
-        z-index: 1;
-    }
-    
-    .product-img-container img {
-        transition: transform 0.3s ease;
-    }
-    
-    .product-card:hover .product-img-container img {
-        transform: scale(1.05);
-    }
-    
-    /* Filtre barre */
-    .filter-bar {
-        background: linear-gradient(145deg, #2d2d2d 0%, #252525 100%);
-        border: 1px solid #3d3d3d;
-        border-radius: 12px;
-        padding: 1rem 1.5rem;
-        margin-bottom: 1.5rem;
-    }
-    
-    .filter-chip {
-        display: inline-flex;
-        align-items: center;
-        background: #3d3d3d;
-        border: 1px solid #4d4d4d;
-        border-radius: 20px;
-        padding: 0.3rem 0.8rem;
-        margin: 0.2rem;
-        font-size: 0.8rem;
-        color: #ccc;
-        cursor: pointer;
         transition: all 0.2s ease;
     }
+    .nutri-dist-item:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+    .nutri-dist-count { font-size: 1.3rem; font-weight: 600; color: var(--text-primary); margin-top: 0.4rem; }
     
-    .filter-chip:hover {
-        background: #4d4d4d;
-        border-color: #4CAF50;
+    .section-header {
+        background: var(--bg-card);
+        padding: 0.9rem 1.2rem;
+        border-radius: 10px;
+        border-left: 3px solid var(--accent);
+        margin-bottom: 1.2rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.15);
     }
+    .section-header strong { color: var(--text-primary) !important; font-size: 0.95rem; font-weight: 600; }
     
-    .filter-chip.active {
-        background: #4CAF50;
-        border-color: #4CAF50;
-        color: #fff;
-    }
-    
-    /* Bouton stylé */
-    .btn-detail {
-        background: linear-gradient(145deg, #4CAF50 0%, #45a049 100%);
-        color: white;
-        border: none;
-        border-radius: 8px;
-        padding: 0.5rem 1rem;
-        font-size: 0.85rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        width: 100%;
-        text-align: center;
-    }
-    
-    .btn-detail:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
-    }
-    
-    /* Recherche intégrée */
-    .search-container {
-        background: linear-gradient(145deg, #2d2d2d 0%, #252525 100%);
-        border: 1px solid #3d3d3d;
-        border-radius: 12px;
-        padding: 1.2rem;
-        margin-bottom: 1rem;
-    }
-    
-    .search-input {
-        background: #1e1e1e !important;
-        border: 2px solid #3d3d3d !important;
-        border-radius: 25px !important;
-        padding: 0.8rem 1.2rem !important;
-        color: #fff !important;
-        font-size: 1rem !important;
-        width: 100%;
-        transition: border-color 0.2s ease;
-    }
-    
-    .search-input:focus {
-        border-color: #4CAF50 !important;
-        outline: none;
-    }
-    
-    /* Style pour st.image */
-    .stImage {
-        border: 2px solid #fff;
-        border-radius: 8px;
-        overflow: hidden;
-    }
-    
-    .stImage img {
-        border-radius: 6px;
-        max-height: 150px;
-        object-fit: contain;
-    }
-    
-    .product-img-container img {
-        max-width: 100%;
-        max-height: 150px;
-        object-fit: contain;
-    }
-    
-    /* Sidebar sombre */
-    section[data-testid="stSidebar"] {
-        background: #252525 !important;
-    }
-    
-    section[data-testid="stSidebar"] .stMarkdown {
-        color: #fff;
-    }
-    
-    /* Inputs sombres */
     .stTextInput input {
-        background-color: #3d3d3d !important;
-        color: #fff !important;
-        border-color: #4d4d4d !important;
+        background: var(--bg-primary) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: 8px !important;
+        color: var(--text-primary) !important;
+        padding: 0.7rem 1rem !important;
     }
+    .stTextInput input:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2) !important; }
     
     .stSelectbox > div > div {
-        background-color: #3d3d3d !important;
-        color: #fff !important;
+        background: var(--bg-primary) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: 8px !important;
+        color: var(--text-primary) !important;
+    }
+    
+    .stButton > button {
+        background: var(--accent) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 8px !important;
+        font-weight: 500 !important;
+        padding: 0.6rem 1rem !important;
+        transition: all 0.2s ease !important;
+    }
+    .stButton > button:hover {
+        background: var(--accent-light) !important;
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3) !important;
     }
             
-    /* Header Streamlit */
-    header[data-testid="stHeader"] {
-        background: #1e1e1e;
+    .stMarkdown, p {color:#ffffff !important;}
+    
+    .stMarkdown, span, label { color: var(--text-secondary) !important; }
+    h1, h2, h3 { color: var(--text-primary) !important; }
+    
+    [data-testid="stHorizontalBlock"] { gap: 0.5rem !important; }
+    
+    .stExpander {
+        background: var(--bg-card) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: 10px !important;
     }
     
-    /* Supprimer le gap entre les colonnes (cartes collées) */
-    [data-testid="stHorizontalBlock"] {
-        gap: 0 !important;
-    }
+    .stCheckbox label span { color: var(--text-primary) !important; }
     
-    /* Texte général blanc */
-    .stMarkdown, .stText, p, span, label {
-        color: #e0e0e0 !important;
-    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-primary); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
     
-    /* Expanders sombres */
-    .streamlit-expanderHeader {
-        background: #2d2d2d !important;
-        color: #fff !important;
-    }
-    
-    .streamlit-expanderContent {
-        background: #252525 !important;
-    }
-    
-    /* Boutons */
-    .stButton > button {
-        background: #3d3d3d;
-        color: #fff;
-        border: 1px solid #4d4d4d;
-    }
-    
-    .stButton > button:hover {
-        background: #4d4d4d;
-        border-color: #5d5d5d;
-    }
-    
-    /* Dividers */
-    hr {
-        border-color: #3d3d3d !important;
-    }
+    hr { border-color: var(--border) !important; }
 </style>
 """, unsafe_allow_html=True)
 
-
-# =============================================================================
-# FONCTIONS UTILITAIRES
-# =============================================================================
 
 def api_get(endpoint: str, params: dict = None):
     """Requête GET vers l'API."""
@@ -434,573 +176,251 @@ def api_get(endpoint: str, params: dict = None):
         r = requests.get(f"{API_URL}{endpoint}", params=params, timeout=10)
         r.raise_for_status()
         return r.json()
-    except requests.exceptions.ConnectionError:
-        return None
-    except Exception:
-        return None
-
-
-def get_image_url(code: str) -> str:
-    """
-    Génère l'URL directe de l'image du produit.
-    Pas d'appel API - URL construite directement depuis le code-barres.
-    """
-    if not code or len(code) < 8:
-        return None
-    
-    # Nettoyer le code (enlever espaces, tirets)
-    code = code.replace(" ", "").replace("-", "")
-    
-    # Formater le code pour l'URL (structure de dossiers OpenFoodFacts)
-    if len(code) <= 8:
-        path = code
-    else:
-        # Pour les codes longs, utiliser la structure XXX/XXX/XXX/XXXX
-        code = code.zfill(13)
-        path = f"{code[0:3]}/{code[3:6]}/{code[6:9]}/{code[9:]}"
-    
-    # URL directe vers l'image
-    return f"https://images.openfoodfacts.org/images/products/{path}/front_fr.400.jpg"
-
-
-def get_nutriscore_class(grade: str) -> str:
-    """Retourne la classe CSS pour le nutriscore."""
-    if not grade:
-        return "nutri-unknown"
-    return f"nutri-{grade.lower()}"
-
-
-@st.cache_data(ttl=86400)
-def fetch_product_image(code: str) -> str:
-    """
-    Récupère l'URL de l'image depuis l'API OpenFoodFacts.
-    Mise en cache 24h pour éviter les appels répétés.
-    """
-    if not code:
-        return None
-    try:
-        r = requests.get(
-            f"https://world.openfoodfacts.org/api/v0/product/{code}.json",
-            timeout=5
-        )
-        if r.status_code == 200:
-            data = r.json()
-            if data.get("status") == 1:
-                product = data.get("product", {})
-                # Essayer plusieurs champs d'image
-                img = product.get("image_front_small_url") or \
-                      product.get("image_front_url") or \
-                      product.get("image_url") or \
-                      product.get("image_small_url")
-                return img
     except:
-        pass
-    return None
+        return None
 
 
-def render_product_image(code: str):
-    """
-    Affiche une image produit avec taille fixe et bordure blanche.
-    """
-    img_url = fetch_product_image(code)
-    if img_url:
-        st.markdown(f'''
-        <div style="width:100%; height:150px; border:2px solid #fff; border-radius:8px; 
-                    background:#3d3d3d; display:flex; align-items:center; justify-content:center; 
-                    overflow:hidden; margin-bottom:0.5rem;">
-            <img src="{img_url}" style="max-width:100%; max-height:146px; object-fit:contain;" />
-        </div>
-        ''', unsafe_allow_html=True)
-    else:
-        st.markdown('<div style="width:100%; height:150px; border:2px solid #fff; border-radius:8px; background:#3d3d3d; display:flex; align-items:center; justify-content:center; color:#888;">Pas d\'image</div>', unsafe_allow_html=True)
-
-
-# =============================================================================
-# VÉRIFICATION API
-# =============================================================================
-
+# Vérification API
 stats = api_get("/stats")
-
 if not stats:
-    st.markdown("## Food Analytics")
-    st.error("Impossible de se connecter à l'API.")
-    st.code("python -m uvicorn src.api.main:app --reload", language="bash")
+    st.error("API non disponible. Lancez: python -m uvicorn src.api.main:app --reload")
     st.stop()
 
-
-# =============================================================================
-# INITIALISATION SESSION STATE
-# =============================================================================
-
+# Session state
 if 'current_page' not in st.session_state:
     st.session_state.current_page = 1
 if 'selected_product_id' not in st.session_state:
     st.session_state.selected_product_id = None
-# Initialisation des filtres
-if 'product_search' not in st.session_state:
-    st.session_state.product_search = ""
-if 'nutri_a' not in st.session_state:
-    st.session_state.nutri_a = True
-if 'nutri_b' not in st.session_state:
-    st.session_state.nutri_b = True
-if 'nutri_c' not in st.session_state:
-    st.session_state.nutri_c = True
-if 'nutri_d' not in st.session_state:
-    st.session_state.nutri_d = True
-if 'nutri_e' not in st.session_state:
-    st.session_state.nutri_e = True
-if 'category_filter' not in st.session_state:
-    st.session_state.category_filter = "Toutes"
+for key in ['product_search', 'category_filter']:
+    if key not in st.session_state:
+        st.session_state[key] = "" if key == 'product_search' else "Toutes"
+for grade in ['a', 'b', 'c', 'd', 'e']:
+    if f'nutri_{grade}' not in st.session_state:
+        st.session_state[f'nutri_{grade}'] = True
 
-
-# =============================================================================
-# SIDEBAR - NAVIGATION ET FILTRES
-# =============================================================================
-
+# Sidebar
 with st.sidebar:
     st.markdown("### 🥗 Food Analytics")
     st.caption("Base de données alimentaires")
-    
     st.divider()
-    
-    # Navigation avec icônes
-    st.markdown("**🧭 Navigation**")
-    page_mode = st.radio(
-        "Navigation",
-        ["Tableau de bord", "Produits"],
-        label_visibility="collapsed",
-        captions=["Vue d'ensemble et statistiques", "Explorer et rechercher"]
-    )
-    
+    page_mode = st.radio("Navigation", ["Tableau de bord", "Produits"], label_visibility="collapsed")
     st.divider()
-    
-    st.caption("Données issues de Open Food Facts")
+    st.caption("Données: Open Food Facts")
 
 
-# =============================================================================
-# PAGE : TABLEAU DE BORD (Statistiques)
-# =============================================================================
-
+# Page: Tableau de bord
 if page_mode == "Tableau de bord":
+    st.markdown('<div class="section-header"><strong>📊 Tableau de bord</strong></div>', unsafe_allow_html=True)
     
-    # Section explicative
-    st.markdown('''
-    <div style="background:#252525; border-radius:8px; padding:1rem; margin-bottom:1.5rem; border-left:4px solid #4CAF50;">
-        <strong style="color:#4CAF50;">📊 Tableau de bord</strong><br>
-        <span style="color:#aaa;">Vue d'ensemble des données collectées depuis Open Food Facts. Ces statistiques représentent l'ensemble des produits dans notre base de données.</span>
-    </div>
-    ''', unsafe_allow_html=True)
-    
-    # Métriques principales avec explications
     col1, col2, col3, col4 = st.columns(4)
-    
-    with col1:
-        st.markdown(f'''
-        <div class="stat-card">
-            <div class="stat-icon">📦</div>
-            <div class="stat-value">{stats["total_products"]:,}</div>
-            <div class="stat-label">Produits</div>
-            <div class="stat-desc">Nombre total de produits alimentaires référencés</div>
-        </div>
-        ''', unsafe_allow_html=True)
-    
-    with col2:
-        st.markdown(f'''
-        <div class="stat-card">
-            <div class="stat-icon">🏭</div>
-            <div class="stat-value">{stats["total_brands"]:,}</div>
-            <div class="stat-label">Marques</div>
-            <div class="stat-desc">Marques différentes dans la base</div>
-        </div>
-        ''', unsafe_allow_html=True)
-    
-    with col3:
-        st.markdown(f'''
-        <div class="stat-card">
-            <div class="stat-icon">🗂️</div>
-            <div class="stat-value">{stats["total_categories"]:,}</div>
-            <div class="stat-label">Catégories</div>
-            <div class="stat-desc">Types de produits (boissons, snacks...)</div>
-        </div>
-        ''', unsafe_allow_html=True)
-    
-    with col4:
-        avg = stats["avg_quality_score"] or 0
-        st.markdown(f'''
-        <div class="stat-card">
-            <div class="stat-icon">⭐</div>
-            <div class="stat-value">{avg:.0f}<span style="font-size:0.9rem;color:#888;">/100</span></div>
-            <div class="stat-label">Score moyen</div>
-            <div class="stat-desc">Qualité moyenne des produits</div>
-        </div>
-        ''', unsafe_allow_html=True)
+    for col, icon, value, label, desc in [
+        (col1, "📦", stats["total_products"], "Produits", "Produits référencés"),
+        (col2, "🏭", stats["total_brands"], "Marques", "Marques différentes"),
+        (col3, "🗂️", stats["total_categories"], "Catégories", "Types de produits"),
+        (col4, "⭐", f'{(stats["avg_quality_score"] or 0):.0f}', "Score moyen", "Qualité moyenne"),
+    ]:
+        with col:
+            st.markdown(f'<div class="stat-card"><div class="stat-icon">{icon}</div><div class="stat-value">{value}</div><div class="stat-label">{label}</div><div class="stat-desc">{desc}</div></div>', unsafe_allow_html=True)
     
     st.markdown("<br>", unsafe_allow_html=True)
-    
-    # Distribution Nutriscore avec explication
-    st.markdown('''
-    <div style="background:#252525; border-radius:8px; padding:1rem; margin-bottom:1rem; border-left:4px solid #85BB2F;">
-        <strong style="color:#85BB2F;">🏷️ Répartition Nutriscore</strong><br>
-        <span style="color:#aaa;">Le Nutriscore classe les produits de A (excellent) à E (à limiter) selon leur qualité nutritionnelle.</span>
-    </div>
-    ''', unsafe_allow_html=True)
+    st.markdown('<div class="section-header"><strong>🏷️ Répartition Nutriscore</strong></div>', unsafe_allow_html=True)
     
     dist = stats.get("nutriscore_distribution", {})
     cols = st.columns(5)
-    
-    grades_info = [("A", "#038141"), ("B", "#85BB2F"), ("C", "#FECB02"), ("D", "#EE8100"), ("E", "#E63E11")]
-    
-    for i, (grade, color) in enumerate(grades_info):
-        count = dist.get(grade.lower(), 0)
+    for i, (grade, color) in enumerate([("A", "#059669"), ("B", "#84cc16"), ("C", "#eab308"), ("D", "#f97316"), ("E", "#dc2626")]):
         with cols[i]:
-            st.markdown(f'''
-            <div class="nutri-dist-item">
-                <div class="nutri-badge nutri-{grade.lower()}" style="margin: 0 auto 0.5rem auto;">{grade}</div>
-                <div class="nutri-dist-count">{count}</div>
-            </div>
-            ''', unsafe_allow_html=True)
+            st.markdown(f'<div class="nutri-dist-item"><div class="nutri-badge nutri-{grade.lower()}" style="margin:0 auto 0.5rem auto;">{grade}</div><div class="nutri-dist-count">{dist.get(grade.lower(), 0)}</div></div>', unsafe_allow_html=True)
 
 
-# =============================================================================
-# PAGE : PRODUITS (Liste avec images)
-# =============================================================================
-
+# Page: Produits
 elif page_mode == "Produits":
     
-    # Vérifier si on affiche un détail
+    # DÉTAIL PRODUIT
     if st.session_state.selected_product_id:
-        
-        # Bouton retour
-        if st.button("← Retour à la liste"):
+        if st.button("← Retour aux produits", use_container_width=False):
             st.session_state.selected_product_id = None
             st.rerun()
         
-        st.divider()
-        
-        # Charger le détail
         detail = api_get(f"/items/{st.session_state.selected_product_id}")
-        
-        if detail:
-            # === HEADER PRODUIT ===
-            nutriscore = detail.get('nutriscore_grade', '')
-            quality = detail.get('quality_score') or 0
-            nova = detail.get('nova_group')
-            brand = detail.get('brand') or 'Marque inconnue'
-            category = detail.get('category') or 'Non catégorisé'
-            
-            # Couleurs Nutriscore
-            nutri_colors = {'a': '#038141', 'b': '#85BB2F', 'c': '#FECB02', 'd': '#EE8100', 'e': '#E63E11'}
-            nutri_color = nutri_colors.get(nutriscore.lower(), '#555') if nutriscore else '#555'
-            
-            # Layout principal - 3 colonnes pour espacer
-            img_col, spacer_col, info_col = st.columns([1.2, 0.15, 1.8])
-            
-            with img_col:
-                # Image avec cadre stylé
-                img_url = fetch_product_image(detail['code'])
-                if img_url:
-                    st.markdown(f'''
-                    <div style="background: linear-gradient(145deg, #2d2d2d, #252525); 
-                                border-radius: 16px; padding: 1.5rem; 
-                                box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-                                display: flex; align-items: center; justify-content: center;
-                                min-height: 280px;">
-                        <img src="{img_url}" style="max-width: 100%; max-height: 250px; 
-                                                     object-fit: contain; border-radius: 8px;" />
-                    </div>
-                    ''', unsafe_allow_html=True)
-                else:
-                    st.markdown('''
-                    <div style="background: linear-gradient(145deg, #2d2d2d, #252525); 
-                                border-radius: 16px; padding: 1.5rem; 
-                                box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-                                display: flex; align-items: center; justify-content: center;
-                                min-height: 280px; color: #666; font-size: 4rem;">
-                        📦
-                    </div>
-                    ''', unsafe_allow_html=True)
-                
-                # Catégorie sous l'image
-                st.markdown(f'''
-                <div style="background: #2d2d2d; border-left: 4px solid #4CAF50; padding: 0.8rem 1rem; 
-                            border-radius: 0 8px 8px 0; margin-top: 1rem;">
-                    <span style="color: #888; font-size: 0.75rem; text-transform: uppercase;">Catégorie</span><br>
-                    <span style="color: #fff; font-size: 0.95rem;">{category}</span>
-                </div>
-                ''', unsafe_allow_html=True)
-            
-            with spacer_col:
-                st.write("")  # Colonne vide pour l'espacement
-            
-            with info_col:
-                # Titre et marque
-                st.markdown(f'''
-                <div style="margin-bottom: 1.5rem;">
-                    <h1 style="color: #fff; font-size: 1.8rem; margin: 0; line-height: 1.3;">
-                        {detail['product_name']}
-                    </h1>
-                    <p style="color: #888; font-size: 1rem; margin-top: 0.5rem; text-transform: uppercase; letter-spacing: 1px;">
-                        {brand}
-                    </p>
-                </div>
-                ''', unsafe_allow_html=True)
-                
-                # Badges Nutriscore et Score
-                st.markdown(f'''
-                <div style="display: flex; gap: 1rem; margin: 1.5rem 0;">
-                    <div style="background: {nutri_color}; color: white; padding: 0.8rem 1.5rem; 
-                                border-radius: 12px; text-align: center; min-width: 100px;
-                                box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
-                        <div style="font-size: 2rem; font-weight: 700;">{nutriscore.upper() if nutriscore else '?'}</div>
-                        <div style="font-size: 0.75rem; opacity: 0.9;">NUTRISCORE</div>
-                    </div>
-                    <div style="background: linear-gradient(135deg, #4CAF50, #45a049); color: white; 
-                                padding: 0.8rem 1.5rem; border-radius: 12px; text-align: center; min-width: 100px;
-                                box-shadow: 0 4px 12px rgba(76,175,80,0.3);">
-                        <div style="font-size: 2rem; font-weight: 700;">{quality}</div>
-                        <div style="font-size: 0.75rem; opacity: 0.9;">SCORE /100</div>
-                    </div>
-                </div>
-                ''', unsafe_allow_html=True)
-            
-            # === INFORMATIONS DÉTAILLÉES ===
-            st.markdown("<br>", unsafe_allow_html=True)
-            
-            detail_cols = st.columns(3)
-            
-            with detail_cols[0]:
-                st.markdown(f'''
-                <div style="background: linear-gradient(145deg, #2d2d2d, #252525); border-radius: 12px; 
-                            padding: 1.2rem; text-align: center; height: 120px;
-                            display: flex; flex-direction: column; justify-content: center;">
-                    <div style="color: #888; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 0.5rem;">Code-barres</div>
-                    <div style="color: #4CAF50; font-size: 1.1rem; font-family: monospace; font-weight: 600;">{detail['code']}</div>
-                </div>
-                ''', unsafe_allow_html=True)
-            
-            with detail_cols[1]:
-                nova_labels = {1: "Non transformé", 2: "Culinaire", 3: "Transformé", 4: "Ultra-transformé"}
-                nova_colors = {1: "#038141", 2: "#85BB2F", 3: "#EE8100", 4: "#E63E11"}
-                nova_label = nova_labels.get(nova, "Non disponible") if nova else "Non disponible"
-                nova_color = nova_colors.get(nova, "#555") if nova else "#555"
-                
-                st.markdown(f'''
-                <div style="background: linear-gradient(145deg, #2d2d2d, #252525); border-radius: 12px; 
-                            padding: 1.2rem; text-align: center; height: 120px;
-                            display: flex; flex-direction: column; justify-content: center;">
-                    <div style="color: #888; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 0.5rem;">Groupe NOVA</div>
-                    <div style="color: {nova_color}; font-size: 1.8rem; font-weight: 700;">{nova if nova else '?'}</div>
-                    <div style="color: #aaa; font-size: 0.8rem;">{nova_label}</div>
-                </div>
-                ''', unsafe_allow_html=True)
-            
-            with detail_cols[2]:
-                # Barre de progression visuelle
-                progress_color = "#4CAF50" if quality >= 70 else "#FECB02" if quality >= 40 else "#E63E11"
-                st.markdown(f'''
-                <div style="background: linear-gradient(145deg, #2d2d2d, #252525); border-radius: 12px; 
-                            padding: 1.2rem; text-align: center; height: 120px;
-                            display: flex; flex-direction: column; justify-content: center;">
-                    <div style="color: #888; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 0.5rem;">Qualité globale</div>
-                    <div style="background: #1e1e1e; border-radius: 10px; height: 12px; overflow: hidden; margin: 0.5rem 0;">
-                        <div style="background: linear-gradient(90deg, {progress_color}, {progress_color}aa); 
-                                    width: {quality}%; height: 100%; border-radius: 10px;"></div>
-                    </div>
-                    <div style="color: #fff; font-size: 0.9rem;">{quality}/100</div>
-                </div>
-                ''', unsafe_allow_html=True)
-            
-        else:
+        if not detail:
             st.error("Produit non trouvé")
-    
-    else:
-        # Liste des produits
+            st.stop()
         
-        # Fonction de reset des filtres
-        def reset_filters():
-            st.session_state.current_page = 1
-            st.session_state["product_search"] = ""
-            st.session_state["nutri_a"] = True
-            st.session_state["nutri_b"] = True
-            st.session_state["nutri_c"] = True
-            st.session_state["nutri_d"] = True
-            st.session_state["nutri_e"] = True
-            st.session_state["category_filter"] = "Toutes"
+        nutriscore = detail.get('nutriscore_grade', '')
+        quality = detail.get('quality_score') or 0
+        nova = detail.get('nova_group')
+        brand = detail.get('brand') or 'Marque inconnue'
+        category = detail.get('category') or 'Non catégorisé'
+        nutri_colors = {'a': '#059669', 'b': '#84cc16', 'c': '#eab308', 'd': '#f97316', 'e': '#dc2626'}
+        nutri_bg = nutri_colors.get(nutriscore.lower(), '#9ca3af') if nutriscore else '#9ca3af'
         
-        # === BARRE DE RECHERCHE ===
-        search_col1, search_col2 = st.columns([4, 1])
-        with search_col2:
-            st.button("🔄 Reset", use_container_width=True, on_click=reset_filters)
-        with search_col1:
-            search_query = st.text_input(
-                "🔍 Rechercher un produit",
-                placeholder="Nom, marque, code-barres...",
-                label_visibility="collapsed",
-                key="product_search"
-            )
+        # Hero Section
+        st.markdown(f'''
+        <div style="background: #1f2937; border: 1px solid #374151; border-radius: 16px; padding: 2rem; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.2);">
+            <div style="display: flex; gap: 2rem; align-items: flex-start; flex-wrap: wrap;">
+                <div style="flex: 0 0 260px; display: flex; flex-direction: column; align-items: center;">
+                    <div style="width: 240px; height: 240px; background: #111827; border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 1px solid #374151;">
+                        {f'<img src="{detail.get("image_url")}" style="max-width: 90%; max-height: 90%; object-fit: contain;" />' if detail.get('image_url') else '<span style="font-size: 4rem; color: #4b5563;">📦</span>'}
+                    </div>
+                    <div style="margin-top: 1rem; background: #374151; border-radius: 8px; padding: 0.5rem 1rem; text-align: center;">
+                        <span style="color: #9ca3af; font-size: 0.75rem;">🏷️ {category}</span>
+                    </div>
+                </div>
+                <div style="flex: 1; min-width: 280px;">
+                    <h1 style="color: #f9fafb; font-size: 1.6rem; margin: 0 0 0.5rem 0; font-weight: 600;">{detail["product_name"]}</h1>
+                    <p style="color: #9ca3af; text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem; margin-bottom: 1.5rem;">{brand}</p>
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <div style="background: {nutri_bg}; color: {'#1f2937' if nutriscore == 'c' else 'white'}; padding: 1rem 1.5rem; border-radius: 12px; text-align: center; min-width: 100px;">
+                            <div style="font-size: 2rem; font-weight: 700;">{nutriscore.upper() if nutriscore else '?'}</div>
+                            <div style="font-size: 0.65rem; letter-spacing: 1px; opacity: 0.9;">NUTRISCORE</div>
+                        </div>
+                        <div style="background: #3b82f6; color: white; padding: 1rem 1.5rem; border-radius: 12px; text-align: center; min-width: 100px;">
+                            <div style="font-size: 2rem; font-weight: 700;">{quality}</div>
+                            <div style="font-size: 0.65rem; letter-spacing: 1px;">SCORE /100</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 1.5rem; padding: 1rem; background: #111827; border-radius: 8px; border-left: 3px solid #3b82f6;">
+                        <span style="color: #6b7280; font-size: 0.7rem; text-transform: uppercase;">Code-barres</span><br>
+                        <span style="color: #f9fafb; font-family: monospace; font-size: 1rem;">{detail["code"]}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        ''', unsafe_allow_html=True)
         
-        # === FILTRES ===
-        with st.expander("🎛️ Filtres avancés", expanded=False):
-            filter_col1, filter_col2 = st.columns(2)
-            
-            with filter_col1:
-                # Filtre Nutriscore
-                st.markdown("**🏷️ Nutriscore**")
-                nutri_cols = st.columns(5)
-                with nutri_cols[0]:
-                    nutri_a = st.checkbox("A", key="nutri_a")
-                with nutri_cols[1]:
-                    nutri_b = st.checkbox("B", key="nutri_b")
-                with nutri_cols[2]:
-                    nutri_c = st.checkbox("C", key="nutri_c")
-                with nutri_cols[3]:
-                    nutri_d = st.checkbox("D", key="nutri_d")
-                with nutri_cols[4]:
-                    nutri_e = st.checkbox("E", key="nutri_e")
-            
-            with filter_col2:
-                # Filtre Catégories
-                st.markdown("**🗂️ Catégorie**")
-                categories_list = api_get("/categories") or []
-                selected_category = st.selectbox(
-                    "Catégorie",
-                    options=["Toutes"] + categories_list,
-                    label_visibility="collapsed",
-                    key="category_filter"
-                )
+        # Info Cards
+        nova_labels = {1: "Non transformé", 2: "Ingrédients culinaires", 3: "Aliments transformés", 4: "Ultra-transformés"}
+        nova_colors = {1: "#059669", 2: "#84cc16", 3: "#f97316", 4: "#dc2626"}
+        progress_color = "#10b981" if quality >= 70 else "#f59e0b" if quality >= 40 else "#ef4444"
         
-        # Construire la liste des nutriscores sélectionnés
-        selected_nutri = []
-        if nutri_a: selected_nutri.append("a")
-        if nutri_b: selected_nutri.append("b")
-        if nutri_c: selected_nutri.append("c")
-        if nutri_d: selected_nutri.append("d")
-        if nutri_e: selected_nutri.append("e")
-        
-        # Catégorie sélectionnée
-        selected_categories = [selected_category] if selected_category != "Toutes" else []
-        filter_brand = None
-        page_size = 48
-        
-        # Filtres actifs
-        active_filters = []
-        if search_query:
-            active_filters.append(f"🔎 \"{search_query}\"")
-        if selected_categories:
-            active_filters.append(f"🗂️ {selected_categories[0]}")
-        if len(selected_nutri) < 5:
-            active_filters.append(f"🏷️ {', '.join([n.upper() for n in selected_nutri])}")
-        
-        if active_filters:
+        col1, col2 = st.columns(2)
+        with col1:
             st.markdown(f'''
-            <div style="background:#1e1e1e; border:1px solid #4CAF50; border-radius:8px; padding:0.5rem 1rem; margin:0.5rem 0 1rem 0;">
-                <span style="color:#4CAF50; font-size:0.85rem;">Filtres:</span> 
-                <span style="color:#ccc; font-size:0.85rem;">{" • ".join(active_filters)}</span>
+            <div style="background: #1f2937; border: 1px solid #374151; border-radius: 12px; padding: 1.5rem; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.2);">
+                <div style="color: #9ca3af; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;">Groupe NOVA</div>
+                <div style="color: {nova_colors.get(nova, '#6b7280')}; font-size: 2.5rem; font-weight: 700; margin: 0.5rem 0;">{nova if nova else '?'}</div>
+                <div style="color: #f9fafb; font-size: 0.85rem;">{nova_labels.get(nova, 'Non disponible')}</div>
             </div>
             ''', unsafe_allow_html=True)
+        with col2:
+            st.markdown(f'''
+            <div style="background: #1f2937; border: 1px solid #374151; border-radius: 12px; padding: 1.5rem; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.2);">
+                <div style="color: #9ca3af; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;">Score Qualité</div>
+                <div style="background: #374151; border-radius: 6px; height: 8px; overflow: hidden; margin: 1rem 0;">
+                    <div style="background: {progress_color}; width: {quality}%; height: 100%; border-radius: 6px;"></div>
+                </div>
+                <div style="color: #f9fafb; font-size: 1.5rem; font-weight: 600;">{quality}<span style="color: #6b7280; font-size: 0.9rem;">/100</span></div>
+            </div>
+            ''', unsafe_allow_html=True)
+    
+    # LISTE PRODUITS
+    else:
+        def reset_filters():
+            st.session_state.current_page = 1
+            st.session_state.product_search = ""
+            st.session_state.category_filter = "Toutes"
+            for g in ['a', 'b', 'c', 'd', 'e']:
+                st.session_state[f'nutri_{g}'] = True
         
-        # Construire les paramètres
-        params = {"page": st.session_state.current_page, "page_size": page_size}
+        # Header de recherche stylisé
+        st.markdown('<div class="section-header"><strong>🔍 Catalogue produits</strong></div>', unsafe_allow_html=True)
         
-        if search_query:
-            params["search"] = search_query
-        # Catégorie : prendre la première sélectionnée s'il y en a
-        if selected_categories:
-            params["category"] = selected_categories[0]
-        if filter_brand:
-            params["brand"] = filter_brand
-        # Nutriscore : on filtre côté client pour permettre plusieurs sélections
+        col1, col2 = st.columns([5, 1])
+        with col1:
+            search = st.text_input("Recherche", placeholder="🔎 Rechercher par nom, marque ou code-barres...", label_visibility="collapsed", key="product_search")
+        with col2:
+            st.button("↻ Reset", use_container_width=True, on_click=reset_filters)
+        
+        with st.expander("⚙️ Filtres avancés", expanded=False):
+            f1, f2 = st.columns(2)
+            with f1:
+                st.markdown("<p style='color:#f9fafb; font-weight:500; margin-bottom:0.5rem;'>Nutriscore</p>", unsafe_allow_html=True)
+                nc = st.columns(5)
+                nutri_checks = {}
+                for i, g in enumerate(['a', 'b', 'c', 'd', 'e']):
+                    with nc[i]:
+                        nutri_checks[g] = st.checkbox(g.upper(), key=f"nutri_{g}")
+            with f2:
+                st.markdown("<p style='color:#f9fafb; font-weight:500; margin-bottom:0.5rem;'>Catégorie</p>", unsafe_allow_html=True)
+                categories = api_get("/categories") or []
+                st.selectbox("Cat", ["Toutes"] + categories, label_visibility="collapsed", key="category_filter")
+        
+        selected_nutri = [g for g in ['a', 'b', 'c', 'd', 'e'] if nutri_checks.get(g)]
+        
+        params = {"page": st.session_state.current_page, "page_size": 48}
+        if search:
+            params["search"] = search
+        if st.session_state.category_filter != "Toutes":
+            params["category"] = st.session_state.category_filter
         
         data = api_get("/items", params)
         
         if data and data["total"] > 0:
+            # Pagination stylisée
+            st.markdown(f'''
+            <div style="display:flex; justify-content:space-between; align-items:center; background:#1f2937; border:1px solid #374151; border-radius:10px; padding:0.8rem 1.2rem; margin-bottom:1rem; box-shadow: 0 1px 2px rgba(0,0,0,0.15);">
+                <span style="color:#9ca3af; font-size:0.85rem;">📦 <strong style="color:#f9fafb;">{data["total"]}</strong> produits trouvés</span>
+                <span style="color:#3b82f6; font-size:0.85rem;">Page <strong>{data["page"]}</strong> / {data["total_pages"]}</span>
+            </div>
+            ''', unsafe_allow_html=True)
             
-            # Navigation pages
-            col1, col2, col3 = st.columns([1, 3, 1])
-            with col1:
-                if st.button("← Précédent", disabled=data["page"] <= 1, use_container_width=True):
+            c1, c2, c3 = st.columns([1, 4, 1])
+            with c1:
+                if st.button("◀ Précédent", disabled=data["page"] <= 1, use_container_width=True):
                     st.session_state.current_page -= 1
                     st.rerun()
-            with col3:
-                if st.button("Suivant →", disabled=data["page"] >= data["total_pages"], use_container_width=True):
+            with c3:
+                if st.button("Suivant ▶", disabled=data["page"] >= data["total_pages"], use_container_width=True):
                     st.session_state.current_page += 1
                     st.rerun()
             
             st.markdown("<br>", unsafe_allow_html=True)
             
-            # Grille de produits (4 colonnes)
-            cols = st.columns(4, gap="small")
+            cols = st.columns(4)
+            items = data["items"] if not selected_nutri else [i for i in data["items"] if not i.get('nutriscore_grade') or i.get('nutriscore_grade', '').lower() in selected_nutri]
             
-            # Filtrer par nutriscore sélectionné
-            filtered_items = [
-                item for item in data["items"]
-                if not item.get('nutriscore_grade') or item.get('nutriscore_grade', '').lower() in selected_nutri
-            ]
-            
-            for idx, item in enumerate(filtered_items):
+            for idx, item in enumerate(items):
                 with cols[idx % 4]:
+                    name = item['product_name'][:30] + '...' if len(item['product_name']) > 30 else item['product_name']
+                    nutri = item.get('nutriscore_grade', '')
+                    img_url = item.get('image_url')
+                    quality = item.get('quality_score') or 0
+                    nutri_colors = {'a': '#059669', 'b': '#84cc16', 'c': '#eab308', 'd': '#f97316', 'e': '#dc2626'}
+                    nutri_color = nutri_colors.get(nutri.lower(), '#9ca3af') if nutri else '#9ca3af'
+                    quality_color = '#10b981' if quality >= 70 else '#f59e0b' if quality >= 40 else '#ef4444'
                     
-                    # Récupérer les données
-                    name = item['product_name']
-                    display_name = name[:32] + '...' if len(name) > 32 else name
-                    brand = item.get('brand') or 'Marque inconnue'
-                    nutriscore = item.get('nutriscore_grade', '')
-                    quality = item.get('quality_score')
-                    nutri_class = f"nutri-{nutriscore.lower()}" if nutriscore else "nutri-unknown"
-                    nutri_display = nutriscore.upper() if nutriscore else "?"
+                    img_html = f'<img src="{img_url}" style="max-width:90%; max-height:120px; object-fit:contain;" />' if img_url else '<div style="font-size:3rem; color:#4b5563;">📦</div>'
                     
-                    # Image avec fallback
-                    img_url = fetch_product_image(item['code'])
-                    img_html = f'<img src="{img_url}" style="max-width:100%; max-height:140px; object-fit:contain; border-radius:8px;" />' if img_url else '<div style="font-size:3rem; color:#555;">📦</div>'
-                    
-                    # Carte produit HTML complète
                     st.markdown(f'''
-                    <div class="product-card">
-                        <div style="width:100%; height:150px; background:linear-gradient(145deg, #3d3d3d 0%, #2d2d2d 100%); 
-                                    border-radius:12px; display:flex; align-items:center; justify-content:center; 
-                                    overflow:hidden; margin-bottom:0.8rem;">
+                    <div style="background:#1f2937; border:1px solid #374151; border-radius:12px; padding:1rem; margin-bottom:1rem; transition:all 0.2s ease; box-shadow:0 1px 3px rgba(0,0,0,0.2);" onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.boxShadow='0 1px 3px rgba(0,0,0,0.2)'; this.style.transform='translateY(0)';">
+                        <div style="width:100%; height:140px; background:#111827; border-radius:8px; display:flex; align-items:center; justify-content:center; overflow:hidden; margin-bottom:0.8rem;">
                             {img_html}
                         </div>
-                        <div class="product-name">{display_name}</div>
-                        <div class="product-brand">{brand}</div>
-                        <div class="product-meta">
-                            <span class="nutri-badge {nutri_class}">{nutri_display}</span>
-                            <span class="quality-score">Score: {quality or '-'}/100</span>
+                        <div style="color:#f9fafb; font-weight:500; font-size:0.9rem; min-height:2.4em; line-height:1.2; margin-bottom:0.3rem;">{name}</div>
+                        <div style="color:#6b7280; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.3px; margin-bottom:0.8rem;">{item.get('brand') or 'Marque inconnue'}</div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; padding-top:0.8rem; border-top:1px solid #374151;">
+                            <div style="background:{nutri_color}; width:28px; height:28px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:0.8rem; color:{'#1f2937' if nutri == 'c' else '#fff'};">{nutri.upper() if nutri else '?'}</div>
+                            <div style="text-align:right;">
+                                <div style="color:{quality_color}; font-weight:600; font-size:0.95rem;">{quality}</div>
+                                <div style="color:#6b7280; font-size:0.6rem;">/100</div>
+                            </div>
                         </div>
                     </div>
                     ''', unsafe_allow_html=True)
                     
-                    # Bouton voir détail
-                    if st.button("👁️ Détails", key=f"btn_{item['id']}", use_container_width=True):
+                    if st.button("Voir détails", key=f"btn_{item['id']}", use_container_width=True):
                         st.session_state.selected_product_id = item['id']
                         st.rerun()
-            
-            # === PAGINATION EN BAS ===
-            st.markdown("<br>", unsafe_allow_html=True)
-            
-            # Boutons navigation (en bas)
-            col1, col2, col3 = st.columns([1, 3, 1])
-            with col1:
-                if st.button("← Précédent", disabled=data["page"] <= 1, use_container_width=True, key="prev_bottom"):
-                    st.session_state.current_page -= 1
-                    st.rerun()
-            with col3:
-                if st.button("Suivant →", disabled=data["page"] >= data["total_pages"], use_container_width=True, key="next_bottom"):
-                    st.session_state.current_page += 1
-                    st.rerun()
-        
         else:
-            st.info("Aucun produit trouvé. Modifiez les filtres.")
+            st.markdown('''
+            <div style="text-align:center; padding:4rem 2rem; background:#1f2937; border-radius:12px; border:1px solid #374151;">
+                <div style="font-size:3rem; margin-bottom:1rem; color:#4b5563;">🔍</div>
+                <h3 style="color:#f9fafb; margin-bottom:0.5rem;">Aucun produit trouvé</h3>
+                <p style="color:#9ca3af;">Essayez de modifier vos critères de recherche</p>
+            </div>
+            ''', unsafe_allow_html=True)
 
 
-# =============================================================================
-# FOOTER
-# =============================================================================
-
+# Footer
 st.divider()
-st.markdown('''
-<div style="text-align:center; padding:1rem;">
-    <p style="color:#666; font-size:0.85rem; margin:0;">🥗 <strong>Food Analytics</strong> — Données issues de <a href="https://world.openfoodfacts.org" target="_blank" style="color:#4CAF50;">Open Food Facts</a></p>
-    <p style="color:#555; font-size:0.75rem; margin-top:0.5rem;">TP Administration BDD • Les données sont mises à jour régulièrement</p>
-</div>
-''', unsafe_allow_html=True)
+st.markdown('<div style="text-align:center; padding:1rem;"><p style="color:#6b7280; font-size:0.8rem;">Food Analytics — <a href="https://world.openfoodfacts.org" style="color:#3b82f6; text-decoration:none;">Open Food Facts</a></p></div>', unsafe_allow_html=True)
