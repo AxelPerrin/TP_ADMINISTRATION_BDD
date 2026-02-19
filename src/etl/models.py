@@ -25,8 +25,7 @@ Relations :
 from datetime import datetime
 # SQLAlchemy : librairie Python pour gérer les bases de données SQL
 from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, ForeignKey, Index
-from sqlalchemy.ext.declarative import declarative_base  # Pour créer la classe de base des modèles
-from sqlalchemy.orm import relationship, sessionmaker  # Pour les relations et les sessions
+from sqlalchemy.orm import declarative_base, relationship, sessionmaker  # Pour les modèles, relations et sessions
 
 import sys
 sys.path.insert(0, str(__file__).rsplit("src", 1)[0])

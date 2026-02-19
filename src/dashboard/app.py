@@ -475,6 +475,7 @@ with st.sidebar:
     
     # Afficher les catégories en checkboxes (max 10 affichées)
     selected_categories = []
+    filter_brand = None  # Filtre marque (non implémenté pour l'instant)
     if categories_list:
         # Limiter à 10 catégories pour ne pas surcharger
         display_cats = categories_list[:10]

@@ -18,7 +18,7 @@ plusieurs fois avant de marquer le document comme "failed".
 =============================================================================
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 import sys
@@ -93,7 +93,7 @@ def enrich_product(raw_doc: dict, max_retries: int = 2) -> dict:
             return {
                 "raw_id": raw_id,  # Lien vers le document RAW original
                 "status": "success",  # L'enrichissement a réussi
-                "enriched_at": datetime.utcnow().isoformat() + "Z",  # Timestamp ISO 8601
+                "enriched_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),  # Timestamp ISO 8601
                 "data": {
                     # Données extraites du payload original
                     "code": payload.get("code", ""),
@@ -115,7 +115,7 @@ def enrich_product(raw_doc: dict, max_retries: int = 2) -> dict:
                 return {
                     "raw_id": raw_id,
                     "status": "failed",  # Échec définitif
-                    "enriched_at": datetime.utcnow().isoformat() + "Z",
+                    "enriched_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
                     "data": {},  # Pas de données enrichies
                     "error": {
                         "code": type(e).__name__,  # Type d'erreur (ex: "ValueError")
